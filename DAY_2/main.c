@@ -34,46 +34,38 @@ void printArray(int *Array, int length) {
     }
 }
 
-int isIncreasing(int *array, int length) {
-   // only checking if its all increasing
-   int j = 0;
-   for(int i =1; i<length; i++){
-    if((array[j] < array[i])){
-        j++;
-    }else {
-        return 0;
+int validDiff(int *array, int length) {
+    for (int i = 0; i < length - 1; i++) { // Prevent out-of-bounds access
+        int diff = abs(array[i] - array[i + 1]);
+        if (diff < 1 || diff > 3) { // Ensure valid difference is between 1 and 3
+            return 0;
+        }
     }
-   }
-   return 1;
+    return 1;
+}
+
+int isIncreasing(int *array, int length) {
+    for (int i = 1; i < length; i++) {
+        if (array[i] <= array[i - 1]) { // Ensure strictly increasing
+            return 0;
+        }
+    }
+    return 1;
 }
 
 int isDecreasing(int *array, int length) {
-    int j = 0;
-   for(int i =1; i<length; i++){
-    if((array[j] > array[i])){
-        j++;
-    }
-    else {
-        return 0;
-    }
-   }
-    return 1; // Decreasing
-}
-
-int validDiff(int *array, int length){
-    for(int i = 0; i<length; i++){
-        int diff = abs(array[i] - array[i+1]);
-        if (diff < 1 || diff > 4) { // Ensure strictly decreasing by at most 3
-            return 0; // Not decreasing
+    for (int i = 1; i < length; i++) {
+        if (array[i] >= array[i - 1]) { // Ensure strictly decreasing
+            return 0;
         }
-
     }
     return 1;
 }
 
 
+
 int main(void) {
-    FILE *file = fopen("./test.txt", "r");
+    FILE *file = fopen("./input.txt", "r");
     if (file == NULL) {
         perror("Failed to open file");
         return 1;
@@ -89,8 +81,15 @@ int main(void) {
         printf("The array is increasing?: %d\n", isIncreasing(Array, length));
         printf("The array is decreasing?: %d\n", isDecreasing(Array, length));
         printf("The array is valid %d\n", validDiff(Array, length));
-
-      
+        int increase = isIncreasing(Array,  length);
+        int decreasing = isDecreasing(Array,  length);
+        int valid = validDiff(Array, length);
+        if(increase == 1 && valid == 1){
+            total +=1;
+        }
+        if(decreasing == 1 && valid == 1){
+            total +=1;
+        }
 
         free(Array); // Free the dynamically allocated array
     }
