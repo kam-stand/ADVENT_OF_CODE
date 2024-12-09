@@ -2,62 +2,53 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *read_file_contents(const char *filename) {
+int max_buffer(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Error opening file");
-        return NULL;
+        // Handle file open error
+        perror("Failed to open file");
+        return -1; // Indicate error
     }
 
-    // Initial buffer size
-    size_t buffer_size = 1024;
-    char *buffer = (char *)malloc(buffer_size);
-    if (!buffer) {
-        perror("Memory allocation failed");
-        fclose(file);
-        return NULL;
-    }
+    int ch;
+    int curr = 0;
+    int max = 0;
 
-    size_t buffer_used = 0;
-    int c;
-    while ((c = fgetc(file)) != EOF) {
-        // Reallocate buffer if it's full
-        if (buffer_used == buffer_size - 1) {
-            buffer_size *= 2;
-            char *new_buffer = (char *)realloc(buffer, buffer_size);
-            if (!new_buffer) {
-                perror("Memory reallocation failed");
-                free(buffer);
-                fclose(file);
-                return NULL;
+    while ((ch = fgetc(file)) != EOF) {
+        if (ch != '\n') {
+            curr++;
+        } else {
+            if (curr > max) {
+                max = curr;
             }
-            buffer = new_buffer;
+            curr = 0; // Reset current line length
         }
-
-        buffer[buffer_used++] = c;
     }
 
-    // Null-terminate the string
-    buffer[buffer_used] = '\0';
+    // Handle the last line if it doesn't end with a newline
+    if (curr > max) {
+        max = curr;
+    }
 
-    fclose(file);
-    return buffer;
+    fclose(file); // Close the file to release resources
+    return max;
 }
 
 int main() {
-    char *content = read_file_contents("input.txt");
-    if (!content) {
-        return 1;
-    }
+    int size = max_buffer("./test.txt");
+    FILE *file = fopen("./test.txt", "r");
+    char line[size];
+    while (fgets(line, sizeof(line), file)){
+        int length = strlen(line);
+        for(int i = 0;  i<length-2; i++){
+            if (line[i] == 'm' && line[i+1] == 'u' && line[i+2] == 'l') {
+                if (line[i+3] == '(') {
+                    break;
+                }
+                
 
-    for (int i = 0; i < strlen(content); i++) {
-        if (content[i] == '\n') {
-            printf("\n");
-        } else {
-            printf("%c", content[i]);
+            }
         }
     }
-
-    free(content);
     return 0;
 }
